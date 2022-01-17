@@ -1,0 +1,21 @@
+[bin-list]
+    # comment the line next line if you don't want to use bin_list
+    url = "http://ftp.altlinux.org/pub/distributions/ALTLinux/Sisyphus/files/list/bin.list.xz"
+    extract-cmd = ["xz", "-d"]
+
+[defaults]
+    # remote = "upstream"
+    # max-tags = 3
+    # repos-dir = "~/build"
+    # tags-format-re = "^v?\\d+\\.\\d+\\.\\d+$"
+    # tags-ignore-re = "ubuntu"
+
+# [[repos]]
+    # path = "libguestfs"
+    # use only even submajor versions
+    # tags-format-re = "^v\\d+\\.\\d*[02468]\\.\\d+$"
+
+# [[repos]]
+    # path = "kubernetes"
+    # bin-package-name = "kubernetes-master"
+    # display-name = "k8s"
