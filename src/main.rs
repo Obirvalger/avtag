@@ -75,7 +75,7 @@ fn main() -> Result<()> {
         return Ok(());
     }
     let ascii = matches.is_present("ascii");
-    let config = config::Config::new()?;
+    let config = config::Config::new(matches.value_of("config"))?;
     let tmpdir = &TMPDIR;
     defer! {
         // ignore fail in removing tmpdir

@@ -165,8 +165,9 @@ pub fn config_path() -> PathBuf {
 }
 
 impl Config {
-    pub fn new() -> Result<Config> {
-        let config_path = config_path();
+    pub fn new(config: Option<&str>) -> Result<Config> {
+        let config_path =
+            if let Some(config) = config { PathBuf::from(config) } else { config_path() };
         let config_str = &fs::read_to_string(&config_path)?;
 
         let mut config: Config = toml::from_str(config_str)?;

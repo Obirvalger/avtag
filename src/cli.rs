@@ -1,7 +1,7 @@
 use std::io;
 
 use anyhow::{bail, Result};
-use clap::{App, AppSettings, Arg, ArgEnum};
+use clap::{App, AppSettings, Arg, ArgEnum, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 
 fn print_completions<G: Generator>(gen: G, app: &mut App) {
@@ -25,6 +25,14 @@ pub fn build_cli() -> clap::App<'static> {
         .version("0.1.0")
         .setting(AppSettings::NoAutoVersion)
         .arg(Arg::new("ascii").long("ascii").help("Use only ascii characters to format output"))
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .short('c')
+                .help("Path to the config file")
+                .value_hint(ValueHint::AnyPath)
+                .takes_value(true),
+        )
         .arg(
             Arg::new("completion")
                 .long("completion")
