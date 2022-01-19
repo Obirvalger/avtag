@@ -1,5 +1,5 @@
 # avtag
-Shows available tags for package repositories.
+Shows available tags for git repositories.
 
 ## Build
 ```
