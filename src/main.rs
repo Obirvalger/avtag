@@ -32,7 +32,10 @@ fn show_tags_table(
     bin_list: &Option<BinList>,
 ) -> Result<()> {
     let mut table = Table::new();
-    table.load_preset(UTF8_FULL).set_content_arrangement(ContentArrangement::Dynamic);
+    table
+        .load_preset(UTF8_FULL)
+        .set_content_arrangement(ContentArrangement::Dynamic)
+        .set_table_width(80);
     if bin_list.is_some() {
         table.set_header(vec![Cell::new("Name"), Cell::new("Built version"), Cell::new("Tags")]);
     } else {
