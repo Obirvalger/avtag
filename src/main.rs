@@ -11,6 +11,7 @@ use crate::config::Repo;
 use crate::tmpdir::TMPDIR;
 
 mod bin_list;
+mod cli;
 mod config;
 mod files;
 mod tmpdir;
@@ -30,12 +31,13 @@ fn filter_tag<S: AsRef<str>>(bin_list: &Option<BinList>, repo: &Repo, tag: S) ->
 fn show_tags_table(
     repo_tags: &BTreeMap<&Repo, Vec<String>>,
     bin_list: &Option<BinList>,
+    ascii: bool,
 ) -> Result<()> {
     let mut table = Table::new();
-    table
-        .load_preset(UTF8_FULL)
-        .set_content_arrangement(ContentArrangement::Dynamic)
-        .set_table_width(80);
+    if !ascii {
+        table.load_preset(UTF8_FULL);
+    }
+    table.set_content_arrangement(ContentArrangement::Dynamic).set_table_width(80);
     if bin_list.is_some() {
         table.set_header(vec![Cell::new("Name"), Cell::new("Built version"), Cell::new("Tags")]);
     } else {
@@ -67,6 +69,12 @@ fn main() -> Result<()> {
         println!("Edit defaults and repos sections before use");
         return Ok(());
     }
+    let matches = cli::build_cli().get_matches();
+    if let Some(shell) = matches.value_of("completion") {
+        cli::completion(shell)?;
+        return Ok(());
+    }
+    let ascii = matches.is_present("ascii");
     let config = config::Config::new()?;
     let tmpdir = &TMPDIR;
     defer! {
@@ -102,7 +110,7 @@ fn main() -> Result<()> {
         }
     }
 
-    show_tags_table(&repo_tags, &bin_list)?;
+    show_tags_table(&repo_tags, &bin_list, ascii)?;
 
     Ok(())
 }
