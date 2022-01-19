@@ -160,9 +160,13 @@ pub fn config_dir() -> PathBuf {
     expand_tilde(&PathBuf::from(home_config_dir)).join("avtag")
 }
 
+pub fn config_path() -> PathBuf {
+    config_dir().join("config.toml")
+}
+
 impl Config {
     pub fn new() -> Result<Config> {
-        let config_path = config_dir().join("config.toml");
+        let config_path = config_path();
         let config_str = &fs::read_to_string(&config_path)?;
 
         let mut config: Config = toml::from_str(config_str)?;

@@ -65,7 +65,7 @@ fn show_tags_table(
 
 fn main() -> Result<()> {
     if files::install_config()? {
-        println!("Installed config to {}", config::config_dir().join("config.toml").display());
+        println!("Installed config to {}", config::config_path().display());
         println!("Edit defaults and repos sections before use");
         return Ok(());
     }
