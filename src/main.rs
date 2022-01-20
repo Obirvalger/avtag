@@ -64,14 +64,14 @@ fn show_tags_table(
 }
 
 fn main() -> Result<()> {
-    if files::install_config()? {
-        println!("Installed config to {}", config::config_path().display());
-        println!("Edit defaults and repos sections before use");
-        return Ok(());
-    }
     let matches = cli::build_cli().get_matches();
     if let Some(shell) = matches.value_of("completion") {
         cli::completion(shell)?;
+        return Ok(());
+    }
+    if files::install_config()? {
+        println!("Installed config to {}", config::config_path().display());
+        println!("Edit defaults and repos sections before use");
         return Ok(());
     }
     let ascii = matches.is_present("ascii");
