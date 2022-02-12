@@ -1,10 +1,14 @@
 use std::cmp::Ordering;
 use std::path::PathBuf;
 
+use anyhow::{Context, Result};
+use cmd_lib::run_fun;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
+use crate::bin_list::BinList;
 use crate::config::Defaults;
+use crate::tmpdir::TMPDIR;
 use crate::util;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -106,5 +110,38 @@ impl Repo {
         } else {
             self.name()
         }
+    }
+
+    fn filter_tag<S: AsRef<str>>(&self, bin_list: &Option<BinList>, tag: S) -> bool {
+        if self.accept_tag(&tag) {
+            if let Some(bin_list) = bin_list {
+                bin_list.need_tag(self.bin_package_name(), tag)
+            } else {
+                true
+            }
+        } else {
+            false
+        }
+    }
+
+    pub fn get_tags(&self, bin_list: &Option<BinList>) -> Result<Vec<String>> {
+        let tmpdir = &TMPDIR;
+        let repo_path = &self.path;
+        let repo_remote = &self.remote;
+        let tags_out = run_fun! {
+            cd $repo_path;
+            git ls-remote --tags --refs --sort=objectname $repo_remote > $tmpdir/remote_tags;
+            git show-ref --tags --hash | sort > $tmpdir/fetched_tags;
+            join $tmpdir/remote_tags $tmpdir/fetched_tags -v 1 -o 1.2 | sed "s|refs/tags/||";
+        };
+        let tags: Vec<String> = tags_out
+            .with_context(|| format!("get tags for repo {}", self.name()))?
+            .split('\n')
+            .filter(|t| self.filter_tag(bin_list, t))
+            .take(self.max_tags)
+            .map(|t| t.to_string())
+            .collect();
+
+        Ok(tags)
     }
 }

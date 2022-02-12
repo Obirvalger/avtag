@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use anyhow::Result;
-use cmd_lib::{run_cmd, run_fun};
+use cmd_lib::run_cmd;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::{Cell, ContentArrangement, Table};
 use scopeguard::defer;
@@ -17,18 +17,6 @@ mod files;
 mod repo;
 mod tmpdir;
 mod util;
-
-fn filter_tag<S: AsRef<str>>(bin_list: &Option<BinList>, repo: &Repo, tag: S) -> bool {
-    if repo.accept_tag(&tag) {
-        if let Some(bin_list) = bin_list {
-            bin_list.need_tag(repo.bin_package_name(), tag)
-        } else {
-            true
-        }
-    } else {
-        false
-    }
-}
 
 fn show_tags_table(
     repo_tags: &BTreeMap<&Repo, Vec<String>>,
@@ -94,22 +82,7 @@ fn main() -> Result<()> {
     let mut repo_tags: BTreeMap<&Repo, Vec<String>> = BTreeMap::new();
 
     for repo in &repos {
-        let repo_path = &repo.path;
-        let repo_remote = &repo.remote;
-        if let Ok(tags) = run_fun! {
-            cd $repo_path;
-            git ls-remote --tags --refs --sort=objectname $repo_remote > $tmpdir/remote_tags;
-            git show-ref --tags --hash | sort > $tmpdir/fetched_tags;
-            join $tmpdir/remote_tags $tmpdir/fetched_tags -v 1 -o 1.2 | sed "s|refs/tags/||";
-        } {
-            let tags: Vec<String> = tags
-                .split('\n')
-                .filter(|t| filter_tag(&bin_list, repo, t))
-                .take(repo.max_tags)
-                .map(|t| t.to_string())
-                .collect();
-            repo_tags.insert(repo, tags.to_owned());
-        }
+        repo_tags.insert(repo, repo.get_tags(&bin_list)?);
     }
 
     show_tags_table(&repo_tags, &bin_list, ascii)?;
