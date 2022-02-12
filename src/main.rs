@@ -7,14 +7,16 @@ use comfy_table::{Cell, ContentArrangement, Table};
 use scopeguard::defer;
 
 use crate::bin_list::BinList;
-use crate::config::Repo;
+use crate::repo::Repo;
 use crate::tmpdir::TMPDIR;
 
 mod bin_list;
 mod cli;
 mod config;
 mod files;
+mod repo;
 mod tmpdir;
+mod util;
 
 fn filter_tag<S: AsRef<str>>(bin_list: &Option<BinList>, repo: &Repo, tag: S) -> bool {
     if repo.accept_tag(&tag) {
